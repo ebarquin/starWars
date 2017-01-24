@@ -12,9 +12,63 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    
+
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        //Crear una window de verdad
+        window = UIWindow(frame: UIScreen.main.bounds)
+        
+        //Crear instancia del modelo
+        
+        do{
+            //Array de diccionarios de JSON
+            var json = try loadFromLocalFile(fileName: "regularCharacter.json")
+            let force = try loadFromLocalFile(fileName: "forceSensitives.json")
+            json.append(contentsOf: force)
+            
+            //Crear un array de clases de Swift
+            var chars = [StarWarsCharacter]()
+            for dict in json{
+                do{
+                    let char = try decode(StarWarsCharacter: dict)
+                    chars.append(char)
+                }catch{
+                    print("Error al procesar \(dict)")
+                }
+            }
+            //Ahora podemos crear el modelo
+            let model = StarWarsUniverse(characters: chars)
+            
+            //Creamos el UniverseVC
+            let uVC = UniverseViewControllerTableViewController(model: model)
+            
+            //lo metenemos en un Nav
+            let uNav = UINavigationController(rootViewController: uVC)
+            
+            
+            // Se lo encasquetamos a la window
+            window?.rootViewController = uNav
+            
+            //Mostramos la window
+            window?.makeKeyAndVisible()
+            
+            return true
+            
+            
+        }catch{
+            fatalError("Error while loading Model from JSON")
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
         // Override point for customization after application launch.
         return true
     }
